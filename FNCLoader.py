@@ -16,22 +16,7 @@ class FNCDataset(Dataset):
         self.hl_and_stances = pd.read_csv(hl_and_stances_csv_file)
         self.stance_to_idx = {'unrelated': 0, 'agree': 1, 'discuss': 2, 'disagree': 3}
         self.sentence_embedder = model.cuda()
-        self.forbidden_strings = set(['<s>', '</s>', '', '*  *  *', ' ', 'Sportex Italia/Facebook', 'H/T FTVLive',
-                                      ' banksy-mugshot', 'paul-horner-is-banksy', 'potshop-400x404', 'cComments',
-                                     '___', 'BABA Booey', '____', '  ', 'profilel-r-copy', 'Boston| ', 'instagram.com',
-                                     '您所访问的资源已不存在。', '查看更多请返回网站主页。', 'w.soundcloud.com', 'REUTERS/Stringer',
-                                     'xvideos.com', 'aicool.me', '    ', 'Hm…', '—————', 'Developing…', 'youtube.com',
-                                     'facebook.com', 'AD_152311321.jpg', '(Picture: Facebook)', 'AD_152311327.jpg',
-                                     'DESSERT', 'STARTERS', '1,070', 'Rn0eaqx', 'Location3', '180887147', 'place.”',
-                                     'vocations.companionscross.org', 'www.christianprayercenter.com', 'canada-life-insurance.org/Funeral',
-                                     'www.eligiblegreeks.com', 'rar-for-mac.com', 'spider-neck', 'firstFT', 'CAPTION',
-                                     'Abdel-Majed Abdel-Bary', 'Pine-nut gruel', 'PODCASTS', 'SPEAKING', 'CONTRIBUTORS', 
-                                     'CONTACT/SUBMISSIONS', '=-=-=-=-=-=-=-=-=-=-=', '12345678', 'CommentsEmailPrint', 
-                                     '5kjqm0H', 'GettyKim Jong-Un  ', 'TwitterFacebookLinkedInRedditGoogle+EmailPrint', '19/02/2015',
-                                     'cesar_MN', 'encantador_MN', 'fat-kid-in-mcdonalds', 'weight-limit-scales', 'websherfif',
-                                     'pregnant-woman-600', 'reddit-mtg-reaction', 'ALLEKO/ALLEKO', 'AntonMatveev/AntonMatveev',
-                                     'Manakin/Manakin', 'federicofoto/federicofoto', 'liveleak.com', 'cesar millan',
-                                     'AP/AFP', '+12', 'ABC/wires', 'OBITUARIES'])
+        
     def __len__(self):
         return len(self.articles)
     
@@ -55,7 +40,7 @@ class FNCDataset(Dataset):
         return sent_tensors.view(num_sentences, 1, 64, 64)
     
     def __getitem__(self, idx):
-        embedded_article_sentences = self.encode_and_resize([k for k in self.articles.iloc[idx]['articleBody'].split('\n') if k not in self.forbidden_strings])
+        embedded_article_sentences = self.encode_and_resize(self.articles.iloc[idx]['articleBody'].split('\n'))
         body_id = self.articles.iloc[idx]['Body ID']
         article_stances = self.hl_and_stances.loc[self.hl_and_stances['Body ID'] == body_id] 
         sent_embeddings = self.encode_and_resize(article_stances['Headline'].values)
